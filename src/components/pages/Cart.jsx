@@ -1,27 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, Truck } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { formatINR } from "../../utils/currency";
 
 function Cart() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Emergency Tripod LED Light Pro',
-      price: 1299,
-      quantity: 2,
-      image: null,
-    },
-    {
-      id: 2,
-      name: 'Emergency Tripod LED Light Elite',
-      price: 1799,
-      quantity: 1,
-      image: null,
-    },
-  ])
-
+  const [cartItems, setCartItems] = useState([])
   const [promoCode, setPromoCode] = useState('')
   const [discount, setDiscount] = useState(0)
+
+  // Load cart from Local Storage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem('fireshield_cart')
+    if (savedCart) {
+      setCartItems(JSON.parse(savedCart))
+    }
+  }, [])
+
+  // Save cart to Local Storage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('fireshield_cart', JSON.stringify(cartItems))
+  }, [cartItems])
 
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity < 1) return
@@ -89,7 +87,7 @@ function Cart() {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-gray-900 mb-1">{item.name}</h3>
-                      <p className="text-primary-600 font-semibold mb-3">${item.price}</p>
+                      <p className="text-primary-600 font-semibold mb-3">{formatINR(item.price)}</p>
                       <div className="flex items-center gap-3">
                         <div className="flex items-center border border-gray-300 rounded-lg">
                           <button
@@ -115,7 +113,7 @@ function Cart() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-gray-900">${item.price * item.quantity}</p>
+                      <p className="font-bold text-gray-900">{formatINR(item.price * item.quantity)}</p>
                     </div>
                   </div>
                 </div>
@@ -130,26 +128,26 @@ function Cart() {
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">${subtotal.toLocaleString()}</span>
+                    <span className="font-medium">{formatINR(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
-                    <span className="font-medium">{shipping === 0 ? 'Free' : `$${shipping}`}</span>
+                    <span className="font-medium">{shipping === 0 ? 'Free' : formatINR(shipping)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tax (10%)</span>
-                    <span className="font-medium">${tax.toLocaleString()}</span>
+                    <span className="font-medium">{formatINR(tax)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount</span>
-                      <span className="font-medium">-${discount.toLocaleString()}</span>
+                      <span className="font-medium">-{formatINR(discount)}</span>
                     </div>
                   )}
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between">
                       <span className="text-lg font-bold text-gray-900">Total</span>
-                      <span className="text-lg font-bold text-primary-600">${total.toLocaleString()}</span>
+                      <span className="text-lg font-bold text-primary-600">{formatINR(total)}</span>
                     </div>
                   </div>
                 </div>
@@ -187,7 +185,7 @@ function Cart() {
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
                     <Truck className="w-4 h-4" />
-                    <span>Free shipping on orders over $5,000</span>
+                    <span>Free shipping on orders over ₹5,000</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <CreditCard className="w-4 h-4" />

@@ -1,7 +1,9 @@
-import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react'
-import { useState } from 'react'
+import { MapPin, Phone, Mail, Clock, Send, User } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useAuth } from "../../context/AuthContext";
 
 function Contact() {
+  const { currentUser, userProfile } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -9,6 +11,18 @@ function Contact() {
     subject: '',
     message: '',
   })
+
+  useEffect(() => {
+    if (userProfile) {
+      setFormData({
+        name: userProfile.fullName || '',
+        email: userProfile.email || currentUser?.email || '',
+        phone: userProfile.phone || '',
+        subject: '',
+        message: '',
+      })
+    }
+  }, [userProfile, currentUser])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -115,53 +129,60 @@ function Contact() {
 
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h2>
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-6 h-6 text-primary-600" />
+              
+              {currentUser && userProfile ? (
+                <div className="space-y-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <User className="w-6 h-6 text-primary-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-1">Your Name</h3>
+                      <p className="text-gray-600">{userProfile.fullName || 'Not provided'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Address</h3>
-                    <p className="text-gray-600">
-                      123 Emergency Response Lane<br />
-                      Industrial District, City 12345<br />
-                      United States
-                    </p>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-6 h-6 text-primary-600" />
+                    </div>
+            <div>
+                      <h3 className="font-semibold text-gray-900 mb-1">Your Email</h3>
+                      <p className="text-gray-600">{currentUser.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-6 h-6 text-primary-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-1">Your Phone</h3>
+                      <p className="text-gray-600">{userProfile.phone || 'Not provided'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-6 h-6 text-primary-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-1">Your Address</h3>
+                      <p className="text-gray-600 whitespace-pre-line">{userProfile.address || 'Not provided'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-6 h-6 text-primary-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-1">Your Country</h3>
+                      <p className="text-gray-600">{userProfile.country || 'Not provided'}</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-6 h-6 text-primary-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Phone</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
-                    <p className="text-gray-600">+1 (555) 987-6543</p>
-                  </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                  <p className="text-yellow-800 font-medium">Please login to view your contact information.</p>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-6 h-6 text-primary-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                    <p className="text-gray-600">sales@fireshieldpro.com</p>
-                    <p className="text-gray-600">support@fireshieldpro.com</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-6 h-6 text-primary-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Business Hours</h3>
-                    <p className="text-gray-600">Monday - Friday: 9:00 AM - 6:00 PM</p>
-                    <p className="text-gray-600">Saturday: 10:00 AM - 4:00 PM</p>
-                    <p className="text-gray-600">Sunday: Closed</p>
-                    <p className="text-primary-600 font-medium mt-2">24/7 Emergency Support Available</p>
-                  </div>
-                </div>
-              </div>
+              )}
 
               <div className="mt-8 bg-primary-50 rounded-xl p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>

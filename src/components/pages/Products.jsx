@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ShoppingCart, Heart, Star, Filter, SlidersHorizontal, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { formatINR } from "../../utils/currency";
 
 function Products() {
   const [cart, setCart] = useState([])
@@ -12,14 +13,29 @@ function Products() {
     {
       id: 1,
       name: 'Emergency Tripod LED Light Pro',
-      price: 1299,
-      originalPrice: 1499,
+      price: 24999,
+      originalPrice: 27999,
       rating: 4.9,
       reviews: 156,
       category: 'Standard',
       image: null,
       features: ['10,000 Lumens', '12hr Battery', 'IP67 Rated'],
       badge: 'Best Seller',
+      batteryBackup: '12 hours',
+      brightness: '10,000 Lumens',
+      warranty: '2 years',
+      availability: 'In Stock',
+      description: 'Professional-grade emergency lighting solution for fire departments and industrial applications.',
+      specifications: {
+        'LED Type': 'High-power COB LED',
+        'Color Temperature': '6500K Cool White',
+        'Beam Angle': '360°',
+        'IP Rating': 'IP67 Waterproof',
+        'Operating Temperature': '-20°C to +50°C',
+        'Charging Time': '4 hours',
+        'Material': 'Aluminum Alloy',
+        'Weight': '8.5 kg',
+      },
     },
     {
       id: 2,
@@ -205,9 +221,9 @@ function Products() {
                   </div>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <span className="text-2xl font-bold text-primary-600">${product.price}</span>
+                      <span className="text-2xl font-bold text-primary-600">{formatINR(product.price)}</span>
                       {product.originalPrice && (
-                        <span className="text-sm text-gray-400 line-through ml-2">${product.originalPrice}</span>
+                        <span className="text-sm text-gray-400 line-through ml-2">{formatINR(product.originalPrice)}</span>
                       )}
                     </div>
                   </div>
@@ -271,7 +287,7 @@ function Products() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-lg font-bold text-primary-600">${product.price}</span>
+                        <span className="text-lg font-bold text-primary-600">{formatINR(product.price)}</span>
                       </div>
                       <button
                         onClick={() => addToCart(product)}

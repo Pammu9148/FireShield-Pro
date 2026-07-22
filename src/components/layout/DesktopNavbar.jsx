@@ -19,6 +19,7 @@ function DesktopNavbar() {
     { name: 'Testimonials', path: '/testimonials' },
     { name: 'FAQ', path: '/faq' },
     { name: 'Contact', path: '/contact' },
+    { name: 'Admin', path: '/admin' },
   ]
 
   return (

@@ -1,9 +1,64 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { User, MapPin, Phone, Mail, Lock, CreditCard, Package, Settings, Bell, LogOut, Edit } from 'lucide-react'
+import { useAuth } from "../../context/AuthContext";
+import { formatINR } from "../../utils/currency";
 
 function Profile() {
+  const navigate = useNavigate()
+  const { currentUser, userProfile, logout, updateUserProfile } = useAuth()
   const [activeTab, setActiveTab] = useState('overview')
   const [isEditing, setIsEditing] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phone: '',
+    country: '',
+    address: '',
+  })
+
+  useEffect(() => {
+    if (userProfile) {
+      setFormData({
+        fullName: userProfile.fullName || '',
+        phone: userProfile.phone || '',
+        country: userProfile.country || '',
+        address: userProfile.address || '',
+      })
+    }
+  }, [userProfile])
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/')
+  }
+
+  const handleSaveProfile = async () => {
+    try {
+      await updateUserProfile(currentUser.uid, formData)
+      setIsEditing(false)
+    } catch (error) {
+      console.error('Error updating profile:', error)
+    }
+  }
+
+  // Redirect to login if not authenticated
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <User className="w-24 h-24 text-gray-300 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Please Login</h2>
+          <p className="text-gray-600 mb-6">You need to login to view your profile</p>
+          <button
+            onClick={() => navigate('/login')}
+            className="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: User },
@@ -67,8 +122,8 @@ function Profile() {
                     <User className="w-8 h-8 text-primary-600" />
                   </div>
                   <div>
-                    <h2 className="font-bold text-gray-900">John Doe</h2>
-                    <p className="text-sm text-gray-600">john.doe@example.com</p>
+                    <h2 className="font-bold text-gray-900">{userProfile?.fullName || 'User'}</h2>
+                    <p className="text-sm text-gray-600">{userProfile?.email || currentUser?.email}</p>
                   </div>
                 </div>
                 <nav className="space-y-2">
@@ -92,7 +147,10 @@ function Profile() {
                 </nav>
               </div>
 
-              <button className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+              <button 
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+              >
                 <LogOut className="w-5 h-5" />
                 Logout
               </button>
@@ -118,7 +176,8 @@ function Profile() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                       <input
                         type="text"
-                        defaultValue="John Doe"
+                        value={isEditing ? formData.fullName : (userProfile?.fullName || '')}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                         disabled={!isEditing}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:bg-gray-50 disabled:text-gray-500"
                       />
@@ -127,8 +186,8 @@ function Profile() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                       <input
                         type="email"
-                        defaultValue="john.doe@example.com"
-                        disabled={!isEditing}
+                        value={currentUser?.email || ''}
+                        disabled
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:bg-gray-50 disabled:text-gray-500"
                       />
                     </div>
@@ -136,25 +195,40 @@ function Profile() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                       <input
                         type="tel"
-                        defaultValue="+1 234 567 8900"
+                        value={isEditing ? formData.phone : (userProfile?.phone || '')}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         disabled={!isEditing}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:bg-gray-50 disabled:text-gray-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                       <input
                         type="text"
-                        defaultValue="Fire Department"
+                        value={isEditing ? formData.country : (userProfile?.country || '')}
+                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                         disabled={!isEditing}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:bg-gray-50 disabled:text-gray-500"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                      <textarea
+                        value={isEditing ? formData.address : (userProfile?.address || '')}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        disabled={!isEditing}
+                        rows={3}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg disabled:bg-gray-50 disabled:text-gray-500 resize-none"
                       />
                     </div>
                   </div>
 
                   {isEditing && (
                     <div className="mt-6 flex gap-4">
-                      <button className="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors">
+                      <button 
+                        onClick={handleSaveProfile}
+                        className="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+                      >
                         Save Changes
                       </button>
                       <button
@@ -187,7 +261,7 @@ function Profile() {
                             }`}>
                               {order.status}
                             </span>
-                            <span className="font-bold text-gray-900">${order.total.toLocaleString()}</span>
+                            <span className="font-bold text-gray-900">{formatINR(order.total)}</span>
                           </div>
                         </div>
                       </div>
